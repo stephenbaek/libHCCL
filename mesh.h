@@ -1,7 +1,7 @@
 #ifndef HCCL_MESH_H_
 #define HCCL_MESH_H_
 
-#include <vector>
+#include "hccl/common.h"
 
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
@@ -9,13 +9,14 @@
 #include <OpenMesh/Tools/Smoother/smooth_mesh.hh>
 
 namespace hccl{
-typedef OpenMesh::Vec3d Point;
-typedef OpenMesh::Vec3d Vector;
-typedef OpenMesh::Vec3d Normal;
-typedef OpenMesh::Vec4d Color;
 
 struct Traits : public OpenMesh::DefaultTraits
 {
+    typedef OpenMesh::Vec3d Point;
+    typedef OpenMesh::Vec3d Vector;
+    typedef OpenMesh::Vec3d Normal;
+    typedef OpenMesh::Vec4d Color;
+
     VertexAttributes(
         OpenMesh::Attributes::Status |
         OpenMesh::Attributes::Normal |
@@ -28,6 +29,13 @@ struct Traits : public OpenMesh::DefaultTraits
 };
 typedef OpenMesh::TriMesh_ArrayKernelT<Traits> Kernel;
 
+typedef Kernel::Point Point;
+typedef Kernel::Normal Vector;
+typedef OpenMesh::Vec4d Color;
+
+#include <limits> 
+const double INF = std::numeric_limits<double>::infinity();
+
 class TriMesh : public Kernel
 {
 public:
@@ -38,10 +46,24 @@ public:
     bool write(std::string strFilePath) const;
 
 public:
+    void scale(double s);
     void translate(double x, double y, double z);
     void translate(Vector v);
     // void rotate(double angle, OpenMesh::Vec3d axis); // TODO
+
+public:
+    Point calc_center_of_geometry();
+    double calc_max_radius();
+    double calc_min_radius();
+    double calc_max_x();
+    double calc_min_x();
+    double calc_max_y();
+    double calc_min_y();
+    double calc_max_z();
+    double calc_min_z();
 };
+
+
 
 } // namespace hccl
 
