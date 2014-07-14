@@ -6,7 +6,7 @@ A class for computing the geodesic distance on a discrete surface.
 The code is based on K. Crane et al., "Geodesics in Heat," ACM TOG, 2013.
 
 ## Usage ##
-```
+``` cpp
 // Initialization
 hccl::Geodesics geod;
 geod.set_geometry(mesh);
