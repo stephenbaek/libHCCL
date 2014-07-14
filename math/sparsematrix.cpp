@@ -277,6 +277,14 @@ void SparseSolver::factor_sym(){
 }
 
 void SparseSolver::factor_gen(){
+    F_gen.clear();
+
+    int n = A.n_rows();
+    UF_long* Ap = (UF_long*) A.get()->p;
+    UF_long* Ai = (UF_long*) A.get()->i;
+    double*  Ax =  (double*) A.get()->x;
+    umfpack_dl_symbolic( n, n, Ap, Ai, Ax, &(F_gen.symbolic), NULL, NULL );
+    umfpack_dl_numeric( Ap, Ai, Ax, &(F_gen.symbolic), &(F_gen.numeric), NULL, NULL );
 }
 
 void SparseSolver::factor_linear_least_squares(){
@@ -311,7 +319,14 @@ void SparseSolver::solve_sym(DenseMatrix& x){
 }
 
 void SparseSolver::solve_gen(DenseMatrix& x){
-
+    x.clear();
+    CholmodDenseMatrix ans;
+    int n = A.n_rows();
+    UF_long* Ap = (UF_long*) A.get()->p;
+    UF_long* Ai = (UF_long*) A.get()->i;
+    double*  Ax =  (double*) A.get()->x;
+    umfpack_dl_solve( UMFPACK_A, Ap, Ai, Ax, ans.get_ptr(), b.get_ptr(), F_gen.numeric, NULL, NULL );
+    x.set(ans.n_rows(), ans.n_cols(), ans.get_step_size(), ans.get_ptr());
 }
 
 void SparseSolver::solve_linear_least_squares(DenseMatrix& x){

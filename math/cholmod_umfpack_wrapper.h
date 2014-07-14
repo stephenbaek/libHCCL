@@ -80,6 +80,20 @@ protected:
     cholmod_factor* M;
 };
 
+class UmfpackFactorMatrix{
+public:
+    UmfpackFactorMatrix();
+    ~UmfpackFactorMatrix();
+
+    void clear();
+    void* get_numeric();
+    void* get_symbolic();
+
+//protected:
+    void* symbolic;
+    void* numeric;
+};
+
 } // namespace hccl
 
 #endif // HCCL_CHOLMOD_UMFPACK_WRAPPER_H_

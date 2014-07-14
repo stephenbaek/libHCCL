@@ -216,4 +216,34 @@ cholmod_factor* CholmodFactorMatrix::get(){
     return M;
 }
 
+
+//////////////////////////////////////////////////////////////////////////
+// UmfpackFactorMatrix
+// - A UMFPACK factor matrix wrapper
+// - by Stephen Baek (3d@cad.snu.ac.kr)
+//////////////////////////////////////////////////////////////////////////
+
+UmfpackFactorMatrix::UmfpackFactorMatrix():symbolic(NULL),numeric(NULL){
+
+}
+
+UmfpackFactorMatrix::~UmfpackFactorMatrix(){
+    clear();
+}
+
+void UmfpackFactorMatrix::clear(){
+    if(symbolic != NULL)
+        umfpack_dl_free_symbolic( &symbolic );
+    if(numeric != NULL)
+        umfpack_dl_free_symbolic( &numeric );
+}
+
+void* UmfpackFactorMatrix::get_numeric(){
+    return numeric;
+}
+
+void* UmfpackFactorMatrix::get_symbolic(){
+    return symbolic;
+}
+
 }   // namespace hccl

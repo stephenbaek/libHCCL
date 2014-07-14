@@ -33,8 +33,6 @@ typedef Kernel::Point Point;
 typedef Kernel::Normal Vector;
 typedef OpenMesh::Vec4d Color;
 
-#include <limits> 
-const double INF = std::numeric_limits<double>::infinity();
 
 class TriMesh : public Kernel
 {

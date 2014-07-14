@@ -103,6 +103,7 @@ protected:
     CholmodFactorMatrix F;
     CholmodSparseMatrix LHS;
     CholmodDenseMatrix RHS;
+    UmfpackFactorMatrix F_gen;
 };
 
 } // namespace hccl
