@@ -6,7 +6,7 @@
 
 namespace hccl{
 
-class SparseMatrix{
+typedef class SparseMatrix{
 public:
     SparseMatrix();
     SparseMatrix(int _rows, int _cols);
@@ -35,9 +35,9 @@ protected:
     std::vector<int> i;
     std::vector<int> j;
     std::vector<double> x;
-};
+}SparseMatrix;
 
-class DenseMatrix{
+typedef class DenseMatrix{
 public:
     DenseMatrix();
     DenseMatrix(int _rows, int _cols);
@@ -66,9 +66,14 @@ public:
 protected:
     int rows, cols;
     std::vector< std::vector<double> > x;
-};
+}DenseMatrix;
 
-class SparseSolver{
+
+SparseMatrix ssadd(SparseMatrix& A, SparseMatrix& B, double alpha = 1.0, double beta = 1.0);
+// TODO: sparse matrix algebra
+
+
+typedef class SparseSolver{
 public:
     SparseSolver();
     SparseSolver(SparseMatrix& _A, DenseMatrix& _b);
@@ -80,6 +85,8 @@ public:
     bool is_valid();
 
     void set_matrices(SparseMatrix& _A, DenseMatrix& _b);
+    void set_matrix(SparseMatrix& _A);
+    void set_matrix(DenseMatrix& _b);
     void set_constraints(std::vector<int>& _constraint_idx, DenseMatrix& _constraints);
 
     void factor_sym();
@@ -104,7 +111,7 @@ protected:
     CholmodSparseMatrix LHS;
     CholmodDenseMatrix RHS;
     UmfpackFactorMatrix F_gen;
-};
+} SparseSolver;
 
 } // namespace hccl
 

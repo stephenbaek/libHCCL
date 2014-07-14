@@ -19,6 +19,9 @@ void opLaplacian(TriMesh& mesh, SparseMatrix& M, SparseMatrix& L){
     std::map<size_t, double> lap_mat, mas_mat;
     M.clear();
     L.clear();
+
+    M.set_size(NV, NV);
+    L.set_size(NV, NV);
         
     for(int i = 0; i < NF; ++i)
     {
@@ -36,9 +39,9 @@ void opLaplacian(TriMesh& mesh, SparseMatrix& M, SparseMatrix& L){
         // Area, cotangent
         Point nn = cross(e[0], e[1]);
         dblA = nn.length();
-        cot01 = dot(-e[0], e[1]) / dblA/* / 2*/;
-        cot12 = dot(-e[1], e[2]) / dblA/* / 2*/;
-        cot20 = dot(-e[2], e[0]) / dblA/* / 2*/;
+        cot01 = dot(-e[0], e[1]) / dblA / 2;
+        cot12 = dot(-e[1], e[2]) / dblA / 2;
+        cot20 = dot(-e[2], e[0]) / dblA / 2;
         diag0 = -cot01-cot20;
         diag1 = -cot01-cot12;
         diag2 = -cot20-cot12;

@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include <limits> 
+#include <limits>
+#include "OpenMesh/Core/Geometry/VectorT.hh"
 
 namespace hccl{
 
@@ -10,9 +11,13 @@ namespace hccl{
 #define INF std::numeric_limits<double>::infinity()
 
 
-// CLASS DECLARATIONS
+// TYPE DECLARATIONS
+typedef OpenMesh::Vec3d Point;
+typedef OpenMesh::Vec3d Vector;
 class TriMesh;
 class SparseMatrix;
+class DenseMatrix;
+class SparseSolver;
 
 // TODO!!
 // class Error{

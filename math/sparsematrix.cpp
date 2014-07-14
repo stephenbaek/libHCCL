@@ -219,6 +219,18 @@ void DenseMatrix::print_info(const char* name){
 
 
 
+SparseMatrix ssadd(SparseMatrix& A, SparseMatrix& B, double alpha/* = 1.0*/, double beta/* = 1.0*/){
+    CholmodSparseMatrix AA(A), BB(B);
+    double aa[2] = {alpha, alpha};
+    double bb[2] = {beta, beta};
+    cholmod_start(&chol);
+    CholmodSparseMatrix CC(cholmod_add(AA.get_chol(), BB.get_chol(), aa, bb, 1, 1, &chol));
+    cholmod_finish(&chol);
+    
+    return CC.get();
+}
+
+
 
 SparseSolver::SparseSolver(){
 
@@ -244,6 +256,7 @@ void SparseSolver::clear(){
     con.clear();
 
     F.clear();
+    F_gen.clear();
     LHS.clear();
     RHS.clear();
 }
@@ -258,8 +271,18 @@ bool SparseSolver::is_valid(){
 }
 
 void SparseSolver::set_matrices(SparseMatrix& _A, DenseMatrix& _b){
-    A.set(_A.n_rows(), _A.n_cols(), _A.n_nonzeros(), _A.get_i_ptr(), _A.get_j_ptr(), _A.get_x_ptr());
-    b.set(_b.get_data());
+    A.set(_A);
+    b.set(_b);
+    //A.set(_A.n_rows(), _A.n_cols(), _A.n_nonzeros(), _A.get_i_ptr(), _A.get_j_ptr(), _A.get_x_ptr());
+    //b.set(_b.get_data());
+}
+
+void SparseSolver::set_matrix(SparseMatrix& _A){
+    A.set(_A);
+}
+
+void SparseSolver::set_matrix(DenseMatrix& _b){
+    b.set(_b);
 }
 
 void SparseSolver::set_constraints(std::vector<int>& _constraint_idx, DenseMatrix& _constraints){
@@ -271,8 +294,8 @@ void SparseSolver::factor_sym(){
     F.clear();
 
     cholmod_start(&chol);
-    F.set(cholmod_analyze(A.get(), &chol));
-    cholmod_factorize(A.get(), F.get(), &chol);
+    F.set(cholmod_analyze(A.get_chol(), &chol));
+    cholmod_factorize(A.get_chol(), F.get(), &chol);
     cholmod_finish(&chol);
 }
 
@@ -280,11 +303,11 @@ void SparseSolver::factor_gen(){
     F_gen.clear();
 
     int n = A.n_rows();
-    UF_long* Ap = (UF_long*) A.get()->p;
-    UF_long* Ai = (UF_long*) A.get()->i;
-    double*  Ax =  (double*) A.get()->x;
+    UF_long* Ap = (UF_long*) A.get_chol()->p;
+    UF_long* Ai = (UF_long*) A.get_chol()->i;
+    double*  Ax =  (double*) A.get_chol()->x;
     umfpack_dl_symbolic( n, n, Ap, Ai, Ax, &(F_gen.symbolic), NULL, NULL );
-    umfpack_dl_numeric( Ap, Ai, Ax, &(F_gen.symbolic), &(F_gen.numeric), NULL, NULL );
+    umfpack_dl_numeric( Ap, Ai, Ax, F_gen.symbolic, &(F_gen.numeric), NULL, NULL );
 }
 
 void SparseSolver::factor_linear_least_squares(){
@@ -296,7 +319,7 @@ void SparseSolver::factor_linear_least_squares(){
     LHS.clear();
     RHS.clear();
     cholmod_start(&chol);
-    cholmod_sparse* AT = cholmod_transpose(A.get(), 1, &chol);
+    cholmod_sparse* AT = cholmod_transpose(A.get_chol(), 1, &chol);
     LHS.set(cholmod_aat(AT, 0, 0, 1, &chol));
     cholmod_finish(&chol);
 }
@@ -313,7 +336,7 @@ void SparseSolver::solve_sym(DenseMatrix& x){
     x.clear();
     CholmodDenseMatrix ans;
     cholmod_start(&chol);
-    ans.set(cholmod_solve(CHOLMOD_A, F.get(), b.get(), &chol));
+    ans.set(cholmod_solve(CHOLMOD_A, F.get(), b.get_chol(), &chol));
     x.set(ans.n_rows(), ans.n_cols(), ans.get_step_size(), ans.get_ptr());
     cholmod_finish(&chol);
 }
@@ -322,10 +345,12 @@ void SparseSolver::solve_gen(DenseMatrix& x){
     x.clear();
     CholmodDenseMatrix ans;
     int n = A.n_rows();
-    UF_long* Ap = (UF_long*) A.get()->p;
-    UF_long* Ai = (UF_long*) A.get()->i;
-    double*  Ax =  (double*) A.get()->x;
-    umfpack_dl_solve( UMFPACK_A, Ap, Ai, Ax, ans.get_ptr(), b.get_ptr(), F_gen.numeric, NULL, NULL );
+    UF_long* Ap = (UF_long*) A.get_chol()->p;
+    UF_long* Ai = (UF_long*) A.get_chol()->i;
+    double*  Ax =  (double*) A.get_chol()->x;
+    std::vector<double> temp(n);
+    umfpack_dl_solve( UMFPACK_A, Ap, Ai, Ax, &temp[0], b.get_ptr(), F_gen.numeric, NULL, NULL );
+    ans.set(n, 1, &temp[0]);
     x.set(ans.n_rows(), ans.n_cols(), ans.get_step_size(), ans.get_ptr());
 }
 

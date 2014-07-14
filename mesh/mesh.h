@@ -29,12 +29,12 @@ struct Traits : public OpenMesh::DefaultTraits
 };
 typedef OpenMesh::TriMesh_ArrayKernelT<Traits> Kernel;
 
-typedef Kernel::Point Point;
-typedef Kernel::Normal Vector;
+// typedef Kernel::Point Point;
+// typedef Kernel::Normal Vector;
 typedef OpenMesh::Vec4d Color;
 
 
-class TriMesh : public Kernel
+typedef class TriMesh : public Kernel
 {
 public:
     TriMesh();
@@ -59,7 +59,7 @@ public:
     double calc_min_y();
     double calc_max_z();
     double calc_min_z();
-};
+}TriMesh;
 
 
 
