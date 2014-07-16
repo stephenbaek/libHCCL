@@ -1,7 +1,7 @@
 #ifndef HCCL_MESH_H_
 #define HCCL_MESH_H_
 
-#include "hccl/common.h"
+#include "../common.h"
 
 #include <OpenMesh/Core/IO/MeshIO.hh>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>

@@ -79,8 +79,8 @@ void Geodesics::solve_heat_flow(std::vector<int> src){
     }
 
     // TODO: erase
-    std::cout << max_val << std::endl;
-    std::cout << max_idx << std::endl;
+//     std::cout << max_val << std::endl;
+//     std::cout << max_idx << std::endl;
 }
 
 void Geodesics::solve_gradient(){

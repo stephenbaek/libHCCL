@@ -4,7 +4,7 @@
 #include "../common.h"
 
 namespace hccl{
-    void opLaplacian(TriMesh& mesh, SparseMatrix& M, SparseMatrix& L);
+    void opLaplacian(const TriMesh& mesh, SparseMatrix& M, SparseMatrix& L);
 
     // void opGradient_V2T();
     // void opGradient_V2V();

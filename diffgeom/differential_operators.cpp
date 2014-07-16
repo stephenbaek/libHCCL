@@ -5,7 +5,7 @@
 namespace hccl{
 
 
-void opLaplacian(TriMesh& mesh, SparseMatrix& M, SparseMatrix& L){
+void opLaplacian(const TriMesh& mesh, SparseMatrix& M, SparseMatrix& L){
     int NV = mesh.n_vertices();
     int NF = mesh.n_faces();
 
@@ -25,11 +25,11 @@ void opLaplacian(TriMesh& mesh, SparseMatrix& M, SparseMatrix& L){
         
     for(int i = 0; i < NF; ++i)
     {
-        // Vertices of current facet
-        TriMesh::ConstFaceVertexIter fvit = mesh.fv_begin(mesh.face_handle(i));
-        v[0] = mesh.point(fvit); vi[0] = (mesh.handle(mesh.vertex(fvit))).idx();
-        v[1] = mesh.point(++fvit); vi[1] = (mesh.handle(mesh.vertex(fvit))).idx();
-        v[2] = mesh.point(++fvit); vi[2] = (mesh.handle(mesh.vertex(fvit))).idx();
+        // Vertices of current facet		
+        TriMesh::ConstFaceVertexIter cfvit = mesh.cfv_begin(mesh.face_handle(i));
+        v[0] = mesh.point(cfvit); vi[0] = (mesh.handle(mesh.vertex(cfvit))).idx();
+        v[1] = mesh.point(++cfvit); vi[1] = (mesh.handle(mesh.vertex(cfvit))).idx();
+        v[2] = mesh.point(++cfvit); vi[2] = (mesh.handle(mesh.vertex(cfvit))).idx();
 
         // Edge vectors of current facet
         e[0] = Point(v[2][0] - v[1][0], v[2][1] - v[1][1], v[2][2] - v[1][2]);
