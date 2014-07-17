@@ -70,6 +70,14 @@ protected:
 
 
 SparseMatrix ssadd(SparseMatrix& A, SparseMatrix& B, double alpha = 1.0, double beta = 1.0);
+SparseMatrix ssmul(SparseMatrix& A, SparseMatrix& B);
+SparseMatrix scalarmul(double k, SparseMatrix& A);
+
+inline SparseMatrix operator+(SparseMatrix& A, SparseMatrix& B){ return ssadd(A, B); }
+inline SparseMatrix operator-(SparseMatrix& A, SparseMatrix& B){ return ssadd(A, B, 1.0, -1.0); }
+inline SparseMatrix operator*(SparseMatrix& A, SparseMatrix& B){ return ssmul(A, B); }
+inline SparseMatrix operator*(double k, SparseMatrix& A){ return scalarmul(k, A); }
+inline SparseMatrix operator*(SparseMatrix& A, double k){ return scalarmul(k, A); }
 // TODO: sparse matrix algebra
 
 

@@ -3,11 +3,9 @@
 namespace hccl{
 
 Geodesics::Geodesics(){
-    sys_heat_flow.clear();
 }
 
 Geodesics::~Geodesics(){
-
 }
 
 void Geodesics::set_geometry(TriMesh& _mesh){
@@ -36,7 +34,7 @@ void Geodesics::solve(int src){
     solve(_src);
 }
 
-void Geodesics::solve(std::vector<int> src){
+void Geodesics::solve(std::vector<int>& src){
     solve_heat_flow(src);
     solve_gradient();
     solve_poisson();
@@ -46,7 +44,7 @@ double Geodesics::get_distance(int vtx_id){
     return phi[vtx_id];
 }
 
-void Geodesics::solve_heat_flow(std::vector<int> src){
+void Geodesics::solve_heat_flow(std::vector<int>& src){
     int NV = mesh.n_vertices();
     DenseMatrix d(NV, 1), x;
     d.set_null();

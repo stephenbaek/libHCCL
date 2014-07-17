@@ -21,12 +21,12 @@ public:
     void set_timestep(double t);
 
     void solve(int src);
-    void solve(std::vector<int> src);
+    void solve(std::vector<int>& src);
 
     double get_distance(int vtx_id);
 
 protected:
-    void solve_heat_flow(std::vector<int> src);
+    void solve_heat_flow(std::vector<int>& src);
     void solve_gradient();
     void solve_poisson();
 
@@ -48,4 +48,4 @@ protected:
 
 } // namespace hccl
 
-#endif // HCCL_DIFFERENTIALOPERATORS_H_
+#endif // HCCL_GEODESICS_H_

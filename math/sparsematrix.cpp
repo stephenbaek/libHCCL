@@ -230,7 +230,26 @@ SparseMatrix ssadd(SparseMatrix& A, SparseMatrix& B, double alpha/* = 1.0*/, dou
     return CC.get();
 }
 
+SparseMatrix ssmul(SparseMatrix& A, SparseMatrix& B){
+    CholmodSparseMatrix AA(A), BB(B);
+    cholmod_start(&chol);
+    CholmodSparseMatrix CC(cholmod_ssmult(AA.get_chol(), BB.get_chol(), 0, 1, 1, &chol));
+    cholmod_finish(&chol);
 
+    return CC.get();
+}
+
+SparseMatrix scalarmul(double k, SparseMatrix& A){
+    CholmodSparseMatrix AA(A);
+    cholmod_start(&chol);    
+    cholmod_dense* S = cholmod_zeros(1, 1, CHOLMOD_REAL, &chol);
+    ((double*)S->x)[0] = k;
+    cholmod_scale(S, CHOLMOD_SCALAR, AA.get_chol(), &chol);
+    cholmod_free_dense(&S, &chol);
+    cholmod_finish(&chol);
+
+    return AA.get();
+}
 
 SparseSolver::SparseSolver(){
 
