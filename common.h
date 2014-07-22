@@ -15,6 +15,7 @@ namespace hccl{
 typedef OpenMesh::Vec3d Point;
 typedef OpenMesh::Vec3d Vector;
 class TriMesh;
+class PolyMesh;
 class SparseMatrix;
 class DenseMatrix;
 class SparseSolver;
