@@ -159,7 +159,40 @@ void icosahedron(PolyMesh& mesh){
 
 
 
-// void truncated_tetrahedron(PolyMesh& mesh);
+void truncated_tetrahedron(PolyMesh& mesh){
+    PolyMesh::VertexHandle vh[12];
+    vh[0] = mesh.add_vertex(Point(3,1,1));
+    vh[1] = mesh.add_vertex(Point(1,3,1));
+    vh[2] = mesh.add_vertex(Point(1,1,3));
+    vh[3] = mesh.add_vertex(Point(-3,-1,1));
+    vh[4] = mesh.add_vertex(Point(-1,-3,1));
+    vh[5] = mesh.add_vertex(Point(-1,-1,3));
+    vh[6] = mesh.add_vertex(Point(-3,1,-1));
+    vh[7] = mesh.add_vertex(Point(-1,3,-1));
+    vh[8] = mesh.add_vertex(Point(-1,1,-3));
+    vh[9] = mesh.add_vertex(Point(3,-1,-1));
+    vh[10] = mesh.add_vertex(Point(1,-3,-1));
+    vh[11] = mesh.add_vertex(Point(1,-1,-3));
+
+    mesh.add_face(vh[0], vh[1], vh[2]);
+    mesh.add_face(vh[3], vh[4], vh[5]);
+    mesh.add_face(vh[6], vh[7], vh[8]);
+    mesh.add_face(vh[9], vh[10], vh[11]);
+
+    PolyMesh::VertexHandle f0[] = {vh[0], vh[9], vh[11], vh[8], vh[7], vh[1]};
+    PolyMesh::VertexHandle f1[] = {vh[0], vh[2], vh[5], vh[4], vh[10], vh[9]};
+    PolyMesh::VertexHandle f2[] = {vh[1], vh[7], vh[6], vh[3], vh[5], vh[2]};
+    PolyMesh::VertexHandle f3[] = {vh[3], vh[6], vh[8], vh[11], vh[10], vh[4]};
+    mesh.add_face(f0, 6);
+    mesh.add_face(f1, 6);
+    mesh.add_face(f2, 6);
+    mesh.add_face(f3, 6);
+
+    mesh.scale(1.0/3.0);
+
+    mesh.update_normals();
+}
+
 void cuboctahedron(PolyMesh& mesh){
     PolyMesh::VertexHandle vh[12];
     vh[0] = mesh.add_vertex(Point(1,1,0));

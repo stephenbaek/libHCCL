@@ -19,7 +19,7 @@ namespace hccl{
     //////////////////////////////////////////////////////////////////////////
     // Archimedean Solids (http://en.wikipedia.org/wiki/Archimedean_solid)
     //////////////////////////////////////////////////////////////////////////
-    // void truncated_tetrahedron(PolyMesh& mesh);
+    void truncated_tetrahedron(PolyMesh& mesh);
     void cuboctahedron(PolyMesh& mesh);
     // void truncated_cube(PolyMesh& mesh);
     void truncated_octahedron(PolyMesh& mesh);
