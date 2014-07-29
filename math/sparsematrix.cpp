@@ -176,6 +176,11 @@ std::vector< std::vector<double> >& DenseMatrix::get_data(){
     return x;
 }
 
+const std::vector< std::vector<double> >& DenseMatrix::get_data() const
+{
+	return x;
+}
+
 void DenseMatrix::set_null(){
     int _rows = rows;
     int _cols = cols;
@@ -229,7 +234,22 @@ SparseMatrix ssadd(SparseMatrix& A, SparseMatrix& B, double alpha/* = 1.0*/, dou
     
     return CC.get();
 }
-
+SparseMatrix ssmul( SparseMatrix& A, SparseMatrix& B )
+{
+	CholmodSparseMatrix AA(A), BB(B);
+	cholmod_start(&chol);
+	CholmodSparseMatrix CC(cholmod_ssmult(AA.get_chol(), BB.get_chol(), 0, 1, 1, &chol));
+	cholmod_finish(&chol);
+	return CC.get();	
+}
+SparseMatrix ssvercat( SparseMatrix& A, SparseMatrix& B )
+{
+	CholmodSparseMatrix AA(A), BB(B);
+	cholmod_start(&chol);
+	CholmodSparseMatrix CC(cholmod_vertcat(AA.get_chol(), BB.get_chol(), 1, &chol));
+	cholmod_finish(&chol);
+	return CC.get();
+}
 
 
 SparseSolver::SparseSolver(){
@@ -285,7 +305,7 @@ void SparseSolver::set_matrix(DenseMatrix& _b){
     b.set(_b);
 }
 
-void SparseSolver::set_constraints(std::vector<int>& _constraint_idx, DenseMatrix& _constraints){
+void SparseSolver::set_constraints(const std::vector<int>& _constraint_idx, const DenseMatrix& _constraints){
     con_id = _constraint_idx;
     con.set(_constraints.get_data());
 }
@@ -318,13 +338,89 @@ void SparseSolver::factor_linear_least_squares(){
     F.clear();
     LHS.clear();
     RHS.clear();
-    cholmod_start(&chol);
-    cholmod_sparse* AT = cholmod_transpose(A.get_chol(), 1, &chol);
-    LHS.set(cholmod_aat(AT, 0, 0, 1, &chol));
+    
+	cholmod_start(&chol);
+    
+	cholmod_sparse* AT = cholmod_transpose(A.get_chol(), 1, &chol);
+	cholmod_sparse* ATA = cholmod_aat(AT, NULL, -1, 1, &chol);
+    LHS.set(ATA);
+	F.set(cholmod_analyze(LHS.get_chol(), &chol));
+	cholmod_factorize(LHS.get_chol(), F.get(), &chol);
+	double alpha[2] = {1, 1}, beta[2] = {0, 0};
+	cholmod_dense* rhs = cholmod_zeros(AT->nrow, b.n_cols(), CHOLMOD_REAL, &chol);
+	cholmod_sdmult(AT, 0, alpha, beta, b.get_chol(), rhs, &chol);
+	RHS.set(rhs);
+	
+	cholmod_free_sparse(&AT, &chol);
+
+
     cholmod_finish(&chol);
 }
 
 void SparseSolver::factor_linear_least_squares_soft_constraints(){
+
+
+	if(!is_valid()){
+		// TODO: Exception handling
+	}
+
+	F.clear();
+	LHS.clear();
+	RHS.clear();
+
+	cholmod_start(&chol);
+
+
+
+	const double weight = 100000;
+	cholmod_triplet* lowA_trip = cholmod_allocate_triplet(con_id.size(), A.n_cols(), con_id.size(), 0, CHOLMOD_REAL, &chol);
+	for(int i = 0; i < con_id.size(); i++){
+		((int*)lowA_trip->i)[i] = i;
+		((int*)lowA_trip->j)[i] = con_id[i];
+		((double*)lowA_trip->x)[i] = weight;
+	}
+	lowA_trip->nnz = con_id.size();
+	cholmod_sparse* lowA = cholmod_triplet_to_sparse(lowA_trip, lowA_trip->nnz, &chol);
+	cholmod_free_triplet(&lowA_trip, &chol);
+	
+	cholmod_sparse* newA = cholmod_vertcat(A.get_chol(), lowA, 1, &chol);
+	cholmod_free_sparse(&lowA, &chol);
+	
+
+	cholmod_dense* tem = cholmod_zeros(b.n_rows()+con.n_rows(), b.n_cols(), CHOLMOD_REAL, &chol);
+	CholmodDenseMatrix newb;
+	newb.set(tem);
+	for(int i = 0; i < b.n_rows(); ++i)
+	{
+		for (int j = 0; j<b.n_cols(); ++j)
+			newb.get_ptr()[i+j*newb.get_step_size()] = b.get_ptr()[i+j*b.get_step_size()];
+	}
+	for(int i = 0; i < con.n_rows(); ++i)
+	{
+		for (int j = 0; j<b.n_cols(); ++j)
+			newb.get_ptr()[con.n_rows()+i+j*newb.get_step_size()] = weight*con.get_ptr()[i+j*b.get_step_size()];
+	}
+	
+
+
+
+	cholmod_sparse* AT = cholmod_transpose(newA, 1, &chol);
+	cholmod_free_sparse(&newA, &chol);
+
+	cholmod_sparse* ATA = cholmod_aat(AT, NULL, -1, 1, &chol);
+	LHS.set(ATA);
+	F.set(cholmod_analyze(LHS.get_chol(), &chol));
+	cholmod_factorize(LHS.get_chol(), F.get(), &chol);
+	double alpha[2] = {1, 1}, beta[2] = {0, 0};
+
+	cholmod_dense* rhs = cholmod_zeros(AT->nrow, newb.n_cols(), CHOLMOD_REAL, &chol);
+	cholmod_sdmult(AT, 0, alpha, beta, newb.get_chol(), rhs, &chol);
+	RHS.set(rhs);
+
+	cholmod_free_sparse(&AT, &chol);
+	newb.clear();
+
+	cholmod_finish(&chol);
 
 }
 
@@ -354,12 +450,22 @@ void SparseSolver::solve_gen(DenseMatrix& x){
     x.set(ans.n_rows(), ans.n_cols(), ans.get_step_size(), ans.get_ptr());
 }
 
-void SparseSolver::solve_linear_least_squares(DenseMatrix& x){
-
+void SparseSolver::solve_linear_least_squares(DenseMatrix& x){	
+	x.clear();
+	CholmodDenseMatrix ans;	
+	cholmod_start(&chol);	
+	ans.set(cholmod_solve(CHOLMOD_A, F.get(), RHS.get_chol(), &chol));
+	x.set(ans.n_rows(), ans.n_cols(), ans.get_step_size(), ans.get_ptr());
+	cholmod_finish(&chol);
 }
 
 void SparseSolver::solve_linear_least_squares_soft_constraints(DenseMatrix& x){
-
+	x.clear();
+	CholmodDenseMatrix ans;	
+	cholmod_start(&chol);	
+	ans.set(cholmod_solve(CHOLMOD_A, F.get(), RHS.get_chol(), &chol));
+	x.set(ans.n_rows(), ans.n_cols(), ans.get_step_size(), ans.get_ptr());
+	cholmod_finish(&chol);
 }
 
 void SparseSolver::solve_linear_least_squares_hard_constraints(DenseMatrix& x){

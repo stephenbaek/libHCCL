@@ -7,3 +7,4 @@
 #include "common.h"
 #include "mesh/mesh.h"
 #include "misc/geodesics.h"
+#include "hounhoun/LeastSquareMesh2.h"

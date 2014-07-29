@@ -36,17 +36,23 @@ void Geodesics::solve(int src){
     solve(_src);
 }
 
-void Geodesics::solve(std::vector<int> src){
+void Geodesics::solve(const std::vector<int>& src){
     solve_heat_flow(src);
     solve_gradient();
     solve_poisson();
+}
+
+void Geodesics::solve(const std::vector<TriMesh::VertexHandle>& src){
+	solve_heat_flow(src);
+	solve_gradient();
+	solve_poisson();
 }
 
 double Geodesics::get_distance(int vtx_id){
     return phi[vtx_id];
 }
 
-void Geodesics::solve_heat_flow(std::vector<int> src){
+void Geodesics::solve_heat_flow(const std::vector<int>& src){
     int NV = mesh.n_vertices();
     DenseMatrix d(NV, 1), x;
     d.set_null();
@@ -63,9 +69,9 @@ void Geodesics::solve_heat_flow(std::vector<int> src){
     int max_idx = -1;
     for(size_t i = 0; i < NV; i++){
         u[i] = x.get(i, 0);
-        if(i < 10){
-            printf("%lf\n", u[i]);
-        }
+//         if(i < 10){
+//             printf("%lf\n", u[i]);
+//         }
         if(min_val > u[i])
         {
             min_val = u[i];
@@ -81,6 +87,37 @@ void Geodesics::solve_heat_flow(std::vector<int> src){
     // TODO: erase
 //     std::cout << max_val << std::endl;
 //     std::cout << max_idx << std::endl;
+}
+
+void Geodesics::solve_heat_flow( const std::vector<TriMesh::VertexHandle>& src )
+{
+	int NV = mesh.n_vertices();
+	DenseMatrix d(NV, 1), x;
+	d.set_null();
+	for(int i = 0; i < src.size(); i++)
+		d.set(src[i].idx(), 0, 1.0);
+
+	sys_heat_flow.set_matrix(d);
+	sys_heat_flow.solve_sym(x);
+
+	u.resize(NV);
+	double min_val = INF;
+	int min_idx = -1;
+	double max_val = -INF;
+	int max_idx = -1;
+	for(size_t i = 0; i < NV; i++){
+		u[i] = x.get(i, 0);
+		if(min_val > u[i])
+		{
+			min_val = u[i];
+			min_idx = i;
+		}
+		if(max_val < u[i])
+		{
+			max_val = u[i];
+			max_idx = i;
+		}
+	}
 }
 
 void Geodesics::solve_gradient(){
@@ -194,8 +231,8 @@ void Geodesics::solve_poisson(){
         if(phi[i] > biggest)
             biggest = phi[i];
     }
-    printf("%lf\n", biggest);
-    printf("%lf\n", smallest);
+//     printf("%lf\n", biggest);
+//     printf("%lf\n", smallest);
     for(size_t i = 0; i < NV; i++){
         phi[i] -= smallest;
     }

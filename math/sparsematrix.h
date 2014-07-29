@@ -56,6 +56,7 @@ public:
     double get(int _i, int _j) const;
     double* get_col_ptr(int i);
     std::vector< std::vector<double> >& get_data();
+	const std::vector< std::vector<double> >& get_data() const;
 
     void set_null();
     void set_identity(int n);
@@ -70,6 +71,10 @@ protected:
 
 
 SparseMatrix ssadd(SparseMatrix& A, SparseMatrix& B, double alpha = 1.0, double beta = 1.0);
+SparseMatrix ssmul(SparseMatrix& A, SparseMatrix& B);
+SparseMatrix ssvercat(SparseMatrix& A, SparseMatrix& B);
+DenseMatrix ssvercat(const DenseMatrix& A, const DenseMatrix& B);
+
 // TODO: sparse matrix algebra
 
 
@@ -87,7 +92,7 @@ public:
     void set_matrices(SparseMatrix& _A, DenseMatrix& _b);
     void set_matrix(SparseMatrix& _A);
     void set_matrix(DenseMatrix& _b);
-    void set_constraints(std::vector<int>& _constraint_idx, DenseMatrix& _constraints);
+    void set_constraints(const std::vector<int>& _constraint_idx, const DenseMatrix& _constraints);
 
     void factor_sym();
     void factor_gen();
@@ -104,6 +109,7 @@ public:
 protected:
     CholmodSparseMatrix A;
     CholmodDenseMatrix b;
+
     std::vector<int> con_id;
     CholmodDenseMatrix con;
 

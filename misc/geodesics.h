@@ -21,12 +21,15 @@ public:
     void set_timestep(double t);
 
     void solve(int src);
-    void solve(std::vector<int> src);
+    void solve(const std::vector<int>& src);
+	void solve(const std::vector<TriMesh::VertexHandle>& src);
+
 
     double get_distance(int vtx_id);
 
 protected:
-    void solve_heat_flow(std::vector<int> src);
+    void solve_heat_flow(const std::vector<int>& src);
+	void solve_heat_flow(const std::vector<TriMesh::VertexHandle>& src);
     void solve_gradient();
     void solve_poisson();
 
