@@ -61,9 +61,9 @@ void Geodesics::solve_heat_flow(std::vector<int>& src){
     int max_idx = -1;
     for(size_t i = 0; i < NV; i++){
         u[i] = x.get(i, 0);
-        if(i < 10){
-            printf("%lf\n", u[i]);
-        }
+//         if(i < 10){
+//             printf("%lf\n", u[i]);
+//         }
         if(min_val > u[i])
         {
             min_val = u[i];
@@ -77,8 +77,8 @@ void Geodesics::solve_heat_flow(std::vector<int>& src){
     }
 
     // TODO: erase
-    std::cout << max_val << std::endl;
-    std::cout << max_idx << std::endl;
+//     std::cout << max_val << std::endl;
+//     std::cout << max_idx << std::endl;
 }
 
 void Geodesics::solve_gradient(){
@@ -192,8 +192,8 @@ void Geodesics::solve_poisson(){
         if(phi[i] > biggest)
             biggest = phi[i];
     }
-    printf("%lf\n", biggest);
-    printf("%lf\n", smallest);
+//     printf("%lf\n", biggest);
+//     printf("%lf\n", smallest);
     for(size_t i = 0; i < NV; i++){
         phi[i] -= smallest;
     }

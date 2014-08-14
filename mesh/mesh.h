@@ -61,6 +61,7 @@ public:
     double calc_min_y();
     double calc_max_z();
     double calc_min_z();
+	double calc_avg_edgeLength();
 }TriMesh;
 
 

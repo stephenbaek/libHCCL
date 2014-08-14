@@ -195,6 +195,16 @@ double TriMesh::calc_min_z(){
     return minz;
 }
 
+double TriMesh::calc_avg_edgeLength()
+{
+	double avg_edge_length = 0.0;
+	for(ConstEdgeIter eit = edges_begin(), eend = edges_end(); eit != eend; ++eit){
+		avg_edge_length += calc_edge_length(eit);
+	}
+	avg_edge_length /= n_edges();
+	return avg_edge_length;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 PolyMesh::PolyMesh(){
